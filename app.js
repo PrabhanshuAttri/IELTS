@@ -2,10 +2,53 @@
   "use strict";
 
   const PROGRESS_KEY = "ielts_progress_v1";
-  const TOPICS_KEY = "ielts_selected_topics_v1";
+  const THEME_KEY = "ielts_theme";
   const MAX_BOX = 5;
 
+  // ---------- theme toggle ----------
+  function effectiveTheme() {
+    const stored = (() => { try { return localStorage.getItem(THEME_KEY); } catch (e) { return null; } })();
+    if (stored === "light" || stored === "dark") return stored;
+    return window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+  }
+  function updateThemeButton() {
+    const btn = document.getElementById("theme-toggle");
+    if (!btn) return;
+    const current = effectiveTheme();
+    const isDark = current === "dark";
+    btn.setAttribute("aria-pressed", String(isDark));
+    btn.setAttribute("aria-label", isDark ? "Switch to light theme" : "Switch to dark theme");
+  }
+  const themeToggleBtn = document.getElementById("theme-toggle");
+  if (themeToggleBtn) {
+    themeToggleBtn.addEventListener("click", () => {
+      const next = effectiveTheme() === "dark" ? "light" : "dark";
+      try { localStorage.setItem(THEME_KEY, next); } catch (e) {}
+      document.documentElement.setAttribute("data-theme", next);
+      updateThemeButton();
+    });
+  }
+  updateThemeButton();
+
   const topics = [...new Set(VOCAB.map((w) => w.topic))];
+
+  // Category-tag accent, per DESIGN.md: only purple/orange/pink/blue are used
+  // for tagging (green is reserved for the brand CTA), so the 12 topics cycle
+  // through this fixed 4-color set rather than an arbitrary hue per topic.
+  const topicAccent = {
+    "Environment & Climate Change": "blue",
+    "Education & Academia": "purple",
+    "Technology & Innovation": "blue",
+    "Health & Medicine": "pink",
+    "Economy & Globalization": "orange",
+    "Urbanization & Infrastructure": "pink",
+    "Government & Policy": "purple",
+    "Crime & Justice": "orange",
+    "Media & Communication": "pink",
+    "Culture & Society": "purple",
+    "Science & Research": "blue",
+    "Work & Employment": "orange",
+  };
 
   // ---------- progress storage ----------
   function loadProgress() {
@@ -36,19 +79,6 @@
     saveProgress(progress);
   }
 
-  function loadSelectedTopics() {
-    try {
-      const stored = JSON.parse(localStorage.getItem(TOPICS_KEY));
-      if (Array.isArray(stored) && stored.length) return stored;
-    } catch (e) {}
-    return [...topics];
-  }
-  function saveSelectedTopics(list) {
-    localStorage.setItem(TOPICS_KEY, JSON.stringify(list));
-  }
-
-  let selectedTopics = new Set(loadSelectedTopics());
-
   // ---------- utils ----------
   function shuffle(arr) {
     const a = arr.slice();
@@ -65,53 +95,22 @@
     if (text !== undefined) e.textContent = text;
     return e;
   }
-
-  // ---------- deck picker ----------
-  const topicListEl = $("#topic-list");
-  const deckCountEl = $("#deck-count");
-
-  function renderTopicList() {
-    topicListEl.innerHTML = "";
-    topics.forEach((topic) => {
-      const count = VOCAB.filter((w) => w.topic === topic).length;
-      const item = el("label", "topic-item" + (selectedTopics.has(topic) ? " checked" : ""));
-      const input = document.createElement("input");
-      input.type = "checkbox";
-      input.checked = selectedTopics.has(topic);
-      input.addEventListener("change", () => {
-        if (input.checked) selectedTopics.add(topic);
-        else selectedTopics.delete(topic);
-        saveSelectedTopics([...selectedTopics]);
-        renderTopicList();
-      });
-      item.appendChild(input);
-      item.appendChild(el("span", "topic-name", topic));
-      item.appendChild(el("span", "topic-count", String(count)));
-      topicListEl.appendChild(item);
-    });
-    const total = VOCAB.filter((w) => selectedTopics.has(w.topic)).length;
-    deckCountEl.textContent = `${total} word${total === 1 ? "" : "s"} selected`;
-    $("#start-session").disabled = total === 0;
+  function paintChip(chipEl, topic) {
+    chipEl.textContent = topic;
+    chipEl.classList.remove("accent-purple", "accent-orange", "accent-pink", "accent-blue");
+    chipEl.classList.add("accent-" + topicAccent[topic]);
+  }
+  function paintDifficulty(badgeEl, difficulty) {
+    badgeEl.textContent = difficulty;
+    badgeEl.classList.toggle("band-9", difficulty === "Band 9");
   }
 
-  $("#select-all-topics").addEventListener("click", () => {
-    selectedTopics = new Set(topics);
-    saveSelectedTopics([...selectedTopics]);
-    renderTopicList();
-  });
-  $("#select-none-topics").addEventListener("click", () => {
-    selectedTopics = new Set();
-    saveSelectedTopics([...selectedTopics]);
-    renderTopicList();
-  });
-
   function currentDeck() {
-    return VOCAB.filter((w) => selectedTopics.has(w.topic));
+    return VOCAB;
   }
 
   // ---------- view switching ----------
   const views = {
-    picker: $("#deck-picker"),
     flashcards: $("#flashcard-view"),
     mcq: $("#mcq-view"),
     stats: $("#stats-view"),
@@ -136,21 +135,30 @@
       if (target === "stats") {
         renderStats();
         showView("stats");
-      } else {
-        mode = target;
-        showView("picker");
-        renderTopicList();
+      } else if (target === "flashcards") {
+        mode = "flashcards";
+        startFlashcards();
+      } else if (target === "mcq") {
+        mode = "mcq";
+        startMcq();
       }
     });
   });
 
-  $("#start-session").addEventListener("click", () => {
-    if (mode === "flashcards") startFlashcards();
-    else startMcq();
+  $("#fc-restart").addEventListener("click", startFlashcards);
+  $("#mcq-restart").addEventListener("click", startMcq);
+  $("#session-again").addEventListener("click", () => {
+    activateModeTab(mode);
+    if (mode === "flashcards") startFlashcards(); else startMcq();
   });
-  $("#fc-restart").addEventListener("click", () => { showView("picker"); renderTopicList(); });
-  $("#mcq-restart").addEventListener("click", () => { showView("picker"); renderTopicList(); });
-  $("#session-again").addEventListener("click", () => { showView("picker"); renderTopicList(); });
+
+  function activateModeTab(name) {
+    document.querySelectorAll(".mode-btn").forEach((b) => {
+      const isTarget = b.dataset.mode === name;
+      b.classList.toggle("active", isTarget);
+      b.setAttribute("aria-selected", String(isTarget));
+    });
+  }
 
   // ---------- flashcards ----------
   let fcQueue = [];
@@ -173,19 +181,27 @@
     const w = fcQueue[fcIndex];
     const card = $("#flashcard");
     card.classList.remove("flipped");
+    card.setAttribute("aria-pressed", "false");
+    paintChip($("#fc-topic"), w.topic);
+    paintDifficulty($("#fc-difficulty"), w.difficulty);
     $("#fc-pos").textContent = w.pos;
     $("#fc-word").textContent = w.word;
     $("#fc-def").textContent = w.definition;
     $("#fc-example").textContent = w.example.replace("___", w.word);
-    $("#fc-syn").textContent = "Synonyms: " + w.synonyms.join(", ");
+    const synEl = $("#fc-syn");
+    synEl.innerHTML = "";
+    w.synonyms.forEach((s) => synEl.appendChild(el("span", "fc-syn-pill", s)));
     $("#fc-progress").textContent = `Card ${fcIndex + 1} of ${fcQueue.length}`;
   }
 
-  $("#flashcard").addEventListener("click", () => {
-    $("#flashcard").classList.toggle("flipped");
-  });
+  function toggleFlip() {
+    const card = $("#flashcard");
+    const flipped = card.classList.toggle("flipped");
+    card.setAttribute("aria-pressed", String(flipped));
+  }
+  $("#flashcard").addEventListener("click", toggleFlip);
   $("#flashcard").addEventListener("keydown", (e) => {
-    if (e.code === "Space") { e.preventDefault(); $("#flashcard").classList.toggle("flipped"); }
+    if (e.code === "Space" || e.code === "Enter") { e.preventDefault(); toggleFlip(); }
   });
 
   function answerFlashcard(knew) {
@@ -236,6 +252,8 @@
     mcqAnswered = false;
     const target = mcqQueue[mcqIndex];
     const options = buildOptions(target);
+    paintChip($("#mcq-topic"), target.topic);
+    paintDifficulty($("#mcq-difficulty"), target.difficulty);
     $("#mcq-progress").textContent = `Question ${mcqIndex + 1} of ${mcqQueue.length}`;
     $("#mcq-score").textContent = `Score: ${mcqScore.right}/${mcqIndex}`;
 
@@ -277,6 +295,8 @@
 
     const fb = $("#mcq-feedback");
     fb.classList.remove("hidden");
+    fb.classList.toggle("mcq-feedback-correct", isCorrect);
+    fb.classList.toggle("mcq-feedback-incorrect", !isCorrect);
     fb.textContent = (isCorrect ? "Correct — " : `Not quite. The answer was "${target.word}". `) +
       `${target.word} (${target.pos}): ${target.definition}`;
 
@@ -325,7 +345,9 @@
       const words = VOCAB.filter((w) => w.topic === topic);
       const masteredCount = words.filter((w) => progress[w.word] && progress[w.word].box >= MAX_BOX).length;
       const row = el("div", "stat-row");
-      row.appendChild(el("div", "name", topic));
+      const nameChip = el("div", "name topic-chip");
+      paintChip(nameChip, topic);
+      row.appendChild(nameChip);
       const track = el("div", "bar-track");
       const fill = el("div", "bar-fill");
       fill.style.width = `${(masteredCount / words.length) * 100}%`;
@@ -333,6 +355,23 @@
       row.appendChild(track);
       row.appendChild(el("div", "frac", `${masteredCount}/${words.length}`));
       topicsEl.appendChild(row);
+    });
+
+    const difficultyEl = $("#stats-difficulty");
+    difficultyEl.innerHTML = "";
+    ["Band 8", "Band 9"].forEach((level) => {
+      const words = VOCAB.filter((w) => w.difficulty === level);
+      const masteredCount = words.filter((w) => progress[w.word] && progress[w.word].box >= MAX_BOX).length;
+      const row = el("div", "stat-row");
+      const badge = el("div", "name difficulty-badge" + (level === "Band 9" ? " band-9" : ""), level);
+      row.appendChild(badge);
+      const track = el("div", "bar-track");
+      const fill = el("div", "bar-fill");
+      fill.style.width = `${(masteredCount / words.length) * 100}%`;
+      track.appendChild(fill);
+      row.appendChild(track);
+      row.appendChild(el("div", "frac", `${masteredCount}/${words.length}`));
+      difficultyEl.appendChild(row);
     });
   }
 
@@ -344,6 +383,5 @@
   });
 
   // ---------- init ----------
-  renderTopicList();
-  showView("picker");
+  startFlashcards();
 })();

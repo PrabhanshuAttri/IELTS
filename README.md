@@ -33,7 +33,9 @@ git push -u origin main
 
 ## How the content was chosen
 
-The word bank (`data/vocab.js`) targets **IELTS Academic, Band 8–9**: ~120 low-frequency academic/topic-specific words across the 12 topics IELTS reading, listening, and writing passages draw on most heavily (environment, education, technology, health, economy, urbanization, government, crime & justice, media, culture, science, and work). Each entry includes part of speech, a precise definition, a natural example sentence, and near-synonyms — the kind of nuance-testing vocabulary that separates Band 7 from Band 8–9 (precise word choice, collocation awareness, less common academic register).
+The word bank (`data/vocab.js`) targets **IELTS Academic, Band 8–9**: 517 low-frequency academic/topic-specific words and phrases, each tagged Band 8 or Band 9 for difficulty, across the 12 topics IELTS reading, listening, and writing passages draw on most heavily (environment, education, technology, health, economy, urbanization, government, crime & justice, media, culture, science, and work). Each entry includes part of speech, a precise definition, a natural example sentence, and near-synonyms — the kind of nuance-testing vocabulary that separates Band 7 from Band 8–9 (precise word choice, collocation awareness, less common academic register).
+
+Every session — Flashcards and MCQ alike — draws from the full deck across all 12 topics, shuffled, with a colour-coded topic tag on each card/question for context. There's no topic picker to fuss with: just study, and use the Progress tab to see which topics need the most attention.
 
 MCQ distractors are generated **on the fly** from other words in the same topic/part of speech, so the wrong options are always plausible, topic-relevant near-misses rather than random noise — closer to how real IELTS distractors are designed.
 
@@ -68,8 +70,9 @@ Total time: **≈2 hours 45 minutes**. Bands are scored 1–9 in 0.5 increments 
 ## Project structure
 
 ```
-index.html        Markup / views (deck picker, flashcards, MCQ, progress)
+index.html        Markup / views (flashcards, MCQ, progress)
+guide.html        Study guide & exam notes (linked from the app footer)
 style.css         Styling (light/dark theme aware)
-app.js            App logic: deck selection, Leitner progress, MCQ generation
+app.js            App logic: session shuffling, Leitner progress, MCQ generation
 data/vocab.js     The vocabulary bank — edit/extend this to add more words or topics
 ```

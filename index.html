@@ -5,49 +5,67 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>IELTS Academic Prep — Vocabulary &amp; MCQ Trainer</title>
 <meta name="description" content="Flashcards and fill-in-the-blank MCQ practice for IELTS Academic vocabulary (Band 8-9)." />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Source+Code+Pro:wght@500&display=swap" rel="stylesheet" />
 <link rel="stylesheet" href="style.css" />
+<script>
+  // Applied before first paint to avoid a flash of the wrong theme.
+  (function () {
+    try {
+      var t = localStorage.getItem("ielts_theme");
+      if (t === "light" || t === "dark") document.documentElement.setAttribute("data-theme", t);
+    } catch (e) {}
+  })();
+</script>
 </head>
 <body>
   <header class="topbar">
     <div class="brand">
-      <span class="brand-mark">IELTS</span>
-      <span class="brand-sub">Academic Prep · Band 8&ndash;9</span>
+      <span class="logo-mark" aria-hidden="true">I</span>
+      <div class="brand-text">
+        <span class="brand-mark">IELTS</span>
+        <span class="brand-sub">Academic Prep · Band 8&ndash;9</span>
+      </div>
     </div>
-    <nav class="mode-switch" role="tablist" aria-label="Study mode">
-      <button class="mode-btn active" data-mode="flashcards" role="tab" aria-selected="true">Flashcards</button>
-      <button class="mode-btn" data-mode="mcq" role="tab" aria-selected="false">Fill-in-the-Blank MCQ</button>
-      <button class="mode-btn" data-mode="stats" role="tab" aria-selected="false">Progress</button>
-    </nav>
+    <div class="topbar-actions">
+      <nav class="mode-switch" role="tablist" aria-label="Study mode">
+        <button class="mode-btn active" data-mode="flashcards" role="tab" aria-selected="true">
+          <svg class="mode-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="6" y="4" width="14" height="16" rx="2"/><path d="M2 8v10a2 2 0 0 0 2 2h10"/></svg>
+          <span>Flashcards</span>
+        </button>
+        <button class="mode-btn" data-mode="mcq" role="tab" aria-selected="false">
+          <svg class="mode-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+          <span>Fill-in-the-Blank</span>
+        </button>
+        <button class="mode-btn" data-mode="stats" role="tab" aria-selected="false">
+          <svg class="mode-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 3v18h18"/><path d="M7 15l4-5 3 3 5-7"/></svg>
+          <span>Progress</span>
+        </button>
+      </nav>
+      <button id="theme-toggle" class="icon-btn theme-toggle" type="button" aria-label="Switch to dark theme" aria-pressed="false">
+        <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+        <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+      </button>
+    </div>
   </header>
 
   <main id="app">
-
-    <!-- ============ DECK PICKER (shared) ============ -->
-    <section id="deck-picker" class="panel">
-      <div class="panel-head">
-        <h2>Choose topics</h2>
-        <div class="deck-actions">
-          <button id="select-all-topics" class="ghost-btn">Select all</button>
-          <button id="select-none-topics" class="ghost-btn">Clear</button>
-        </div>
-      </div>
-      <div id="topic-list" class="topic-list"></div>
-      <div class="deck-summary">
-        <span id="deck-count">0 words selected</span>
-        <button id="start-session" class="primary-btn">Start session</button>
-      </div>
-    </section>
 
     <!-- ============ FLASHCARD MODE ============ -->
     <section id="flashcard-view" class="panel hidden">
       <div class="session-bar">
         <span id="fc-progress"></span>
-        <button class="ghost-btn" id="fc-restart">Change topics</button>
+        <button class="ghost-btn" id="fc-restart">Shuffle</button>
       </div>
       <div class="card-stage">
-        <div id="flashcard" class="flashcard" tabindex="0">
+        <div id="flashcard" class="flashcard" tabindex="0" role="button" aria-pressed="false" aria-label="Flip flashcard">
           <div class="flashcard-inner">
             <div class="flashcard-face flashcard-front">
+              <div class="card-tags">
+                <span class="topic-chip" id="fc-topic"></span>
+                <span class="difficulty-badge" id="fc-difficulty"></span>
+              </div>
               <span class="pos-tag" id="fc-pos"></span>
               <div class="fc-word" id="fc-word"></div>
               <span class="hint">Click card or press space to flip</span>
@@ -55,7 +73,7 @@
             <div class="flashcard-face flashcard-back">
               <div class="fc-def" id="fc-def"></div>
               <div class="fc-example" id="fc-example"></div>
-              <div class="fc-syn" id="fc-syn"></div>
+              <div class="fc-syn-list" id="fc-syn"></div>
             </div>
           </div>
         </div>
@@ -71,9 +89,13 @@
       <div class="session-bar">
         <span id="mcq-progress"></span>
         <span id="mcq-score"></span>
-        <button class="ghost-btn" id="mcq-restart">Change topics</button>
+        <button class="ghost-btn" id="mcq-restart">Shuffle</button>
       </div>
       <div class="mcq-stage">
+        <div class="card-tags">
+          <span class="topic-chip" id="mcq-topic"></span>
+          <span class="difficulty-badge" id="mcq-difficulty"></span>
+        </div>
         <p class="mcq-sentence" id="mcq-sentence"></p>
         <div id="mcq-options" class="mcq-options"></div>
         <div id="mcq-feedback" class="mcq-feedback hidden"></div>
@@ -85,13 +107,18 @@
 
     <!-- ============ STATS ============ -->
     <section id="stats-view" class="panel hidden">
+      <span class="eyebrow">Study progress</span>
       <h2>Your progress</h2>
       <div id="stats-overall" class="stats-overall"></div>
+      <h3 class="subheading">By topic</h3>
       <div id="stats-topics" class="stats-topics"></div>
+      <h3 class="subheading">By difficulty</h3>
+      <div id="stats-difficulty" class="stats-topics"></div>
       <button id="reset-progress" class="ghost-btn danger">Reset all progress</button>
     </section>
 
     <section id="session-end" class="panel hidden">
+      <span class="eyebrow">Results</span>
       <h2>Session complete 🎉</h2>
       <p id="session-summary"></p>
       <button id="session-again" class="primary-btn">Study again</button>
@@ -100,7 +127,7 @@
   </main>
 
   <footer class="footer">
-    <span>Data stored locally in your browser · <a href="README.md">Study guide &amp; exam notes</a></span>
+    <span>517 words · 12 topics · progress stored locally in your browser · <a href="guide.html">Study guide &amp; exam notes</a></span>
   </footer>
 
 <script src="data/vocab.js"></script>
