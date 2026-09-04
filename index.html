@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>IELTS Academic Prep — Vocabulary &amp; MCQ Trainer</title>
+<meta name="description" content="Flashcards and fill-in-the-blank MCQ practice for IELTS Academic vocabulary (Band 8-9)." />
+<link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <span class="brand-mark">IELTS</span>
+      <span class="brand-sub">Academic Prep · Band 8&ndash;9</span>
+    </div>
+    <nav class="mode-switch" role="tablist" aria-label="Study mode">
+      <button class="mode-btn active" data-mode="flashcards" role="tab" aria-selected="true">Flashcards</button>
+      <button class="mode-btn" data-mode="mcq" role="tab" aria-selected="false">Fill-in-the-Blank MCQ</button>
+      <button class="mode-btn" data-mode="stats" role="tab" aria-selected="false">Progress</button>
+    </nav>
+  </header>
+
+  <main id="app">
+
+    <!-- ============ DECK PICKER (shared) ============ -->
+    <section id="deck-picker" class="panel">
+      <div class="panel-head">
+        <h2>Choose topics</h2>
+        <div class="deck-actions">
+          <button id="select-all-topics" class="ghost-btn">Select all</button>
+          <button id="select-none-topics" class="ghost-btn">Clear</button>
+        </div>
+      </div>
+      <div id="topic-list" class="topic-list"></div>
+      <div class="deck-summary">
+        <span id="deck-count">0 words selected</span>
+        <button id="start-session" class="primary-btn">Start session</button>
+      </div>
+    </section>
+
+    <!-- ============ FLASHCARD MODE ============ -->
+    <section id="flashcard-view" class="panel hidden">
+      <div class="session-bar">
+        <span id="fc-progress"></span>
+        <button class="ghost-btn" id="fc-restart">Change topics</button>
+      </div>
+      <div class="card-stage">
+        <div id="flashcard" class="flashcard" tabindex="0">
+          <div class="flashcard-inner">
+            <div class="flashcard-face flashcard-front">
+              <span class="pos-tag" id="fc-pos"></span>
+              <div class="fc-word" id="fc-word"></div>
+              <span class="hint">Click card or press space to flip</span>
+            </div>
+            <div class="flashcard-face flashcard-back">
+              <div class="fc-def" id="fc-def"></div>
+              <div class="fc-example" id="fc-example"></div>
+              <div class="fc-syn" id="fc-syn"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="fc-controls">
+        <button id="fc-dont-know" class="answer-btn wrong">✗ Still learning</button>
+        <button id="fc-know" class="answer-btn right">✓ Knew it</button>
+      </div>
+    </section>
+
+    <!-- ============ MCQ MODE ============ -->
+    <section id="mcq-view" class="panel hidden">
+      <div class="session-bar">
+        <span id="mcq-progress"></span>
+        <span id="mcq-score"></span>
+        <button class="ghost-btn" id="mcq-restart">Change topics</button>
+      </div>
+      <div class="mcq-stage">
+        <p class="mcq-sentence" id="mcq-sentence"></p>
+        <div id="mcq-options" class="mcq-options"></div>
+        <div id="mcq-feedback" class="mcq-feedback hidden"></div>
+      </div>
+      <div class="mcq-controls">
+        <button id="mcq-next" class="primary-btn hidden">Next question →</button>
+      </div>
+    </section>
+
+    <!-- ============ STATS ============ -->
+    <section id="stats-view" class="panel hidden">
+      <h2>Your progress</h2>
+      <div id="stats-overall" class="stats-overall"></div>
+      <div id="stats-topics" class="stats-topics"></div>
+      <button id="reset-progress" class="ghost-btn danger">Reset all progress</button>
+    </section>
+
+    <section id="session-end" class="panel hidden">
+      <h2>Session complete 🎉</h2>
+      <p id="session-summary"></p>
+      <button id="session-again" class="primary-btn">Study again</button>
+    </section>
+
+  </main>
+
+  <footer class="footer">
+    <span>Data stored locally in your browser · <a href="README.md">Study guide &amp; exam notes</a></span>
+  </footer>
+
+<script src="data/vocab.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
