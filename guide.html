@@ -5,10 +5,22 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Study Guide &amp; Exam Notes — IELTS Academic Prep</title>
 <meta name="description" content="IELTS Academic exam format reference, why vocabulary breadth matters for the band descriptors, and a suggested study rhythm." />
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 34 34'%3E%3Crect width='34' height='34' rx='10' fill='%2300ed64'/%3E%3Ctext x='17' y='24' font-family='system-ui,sans-serif' font-size='19' font-weight='700' text-anchor='middle' fill='%2300161f'%3EI%3C/text%3E%3C/svg%3E" />
+<meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)" />
+<meta name="theme-color" content="#001e2b" media="(prefers-color-scheme: dark)" />
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Source+Code+Pro:wght@500&display=swap" rel="stylesheet" />
 <link rel="stylesheet" href="style.css" />
+<script>
+  // Applied before first paint to avoid a flash of the wrong theme.
+  (function () {
+    try {
+      var t = localStorage.getItem("ielts_theme");
+      if (t === "light" || t === "dark") document.documentElement.setAttribute("data-theme", t);
+    } catch (e) {}
+  })();
+</script>
 <style>
   .guide-section { margin-bottom: 18px; }
   .guide-section:last-child { margin-bottom: 0; }
@@ -39,12 +51,6 @@
     padding: 12px 14px; margin: 4px 0 18px;
   }
   .note a { color: var(--steel); }
-  .back-link {
-    display: inline-flex; align-items: center; gap: 6px;
-    font-size: 0.85rem; font-weight: 600; color: var(--steel);
-    text-decoration: none; margin-bottom: 10px;
-  }
-  .back-link:active { color: var(--brand-green-dark); }
   .total-line {
     font-size: 0.95rem; margin-top: 4px;
   }
@@ -58,14 +64,43 @@
 <body>
   <header class="topbar">
     <div class="brand">
-      <span class="brand-mark">IELTS</span>
-      <span class="brand-sub">Study guide &amp; exam notes</span>
+      <span class="logo-mark" aria-hidden="true">I</span>
+      <div class="brand-text">
+        <h1 class="brand-mark">IELTS</h1>
+        <span class="brand-sub">Study guide &amp; exam notes</span>
+      </div>
+    </div>
+    <div class="topbar-actions">
+      <nav class="mode-switch" aria-label="Study mode">
+        <a class="mode-btn" href="index.html#flashcards" aria-label="Flashcards">
+          <svg class="mode-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="6" y="4" width="14" height="16" rx="2"/><path d="M2 8v10a2 2 0 0 0 2 2h10"/></svg>
+          <span class="mode-label">Flashcards</span>
+        </a>
+        <a class="mode-btn" href="index.html#mcq" aria-label="Fill-in-the-Blank">
+          <svg class="mode-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+          <span class="mode-label">Fill-in-the-Blank</span>
+        </a>
+        <a class="mode-btn" href="index.html#browse" aria-label="Browse all">
+          <svg class="mode-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 6h13M8 12h13M8 18h13"/><path d="M3 6h.01M3 12h.01M3 18h.01"/></svg>
+          <span class="mode-label">Browse all</span>
+        </a>
+        <a class="mode-btn" href="index.html#stats" aria-label="Progress">
+          <svg class="mode-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 3v18h18"/><path d="M7 15l4-5 3 3 5-7"/></svg>
+          <span class="mode-label">Progress</span>
+        </a>
+        <button class="mode-btn active" data-mode="guide" aria-current="page" aria-label="Study guide">
+          <svg class="mode-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+          <span class="mode-label">Study guide</span>
+        </button>
+      </nav>
+      <button id="theme-toggle" class="icon-btn theme-toggle" type="button" aria-label="Switch to dark theme" aria-pressed="false">
+        <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+        <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+      </button>
     </div>
   </header>
 
   <main id="app" class="guide">
-    <a class="back-link" href="index.html">← Back to flashcards</a>
-
     <section class="panel guide-section">
       <h2>IELTS Academic exam — quick reference</h2>
       <p class="note">Format details are occasionally revised — cross-check against the official <a href="https://www.ielts.org" target="_blank" rel="noopener">ielts.org</a> test format page closer to your test date.</p>
@@ -79,7 +114,7 @@
             <tr>
               <th scope="row">Listening</th>
               <td>30 min<br>(+ transfer time)</td>
-              <td>40 questions, 4 recordings of increasing difficulty. Shared with General Training.</td>
+              <td>40 questions, 4 recordings of increasing difficulty. Shared with General Training. Paper-based tests give 10 minutes to transfer answers to the answer sheet afterward; computer-delivered tests give 2 minutes to review answers typed directly during the recording.</td>
             </tr>
             <tr>
               <th scope="row">Reading</th>
@@ -99,15 +134,59 @@
           </tbody>
         </table>
       </div>
-      <p class="total-line">Total time: <strong>≈2 hours 45 minutes</strong>. Bands are scored 1–9 in 0.5 increments per section, then averaged (rounded) for the Overall Band Score. Many centres now also offer the <strong>One Skill Retake (OSR)</strong>, letting you re-sit a single section instead of the full test if only one score falls short.</p>
+      <p class="total-line">Total time: <strong>≈2 hours 45 minutes</strong>. Bands are scored 1–9 in 0.5 increments per section, then averaged (rounded) for the Overall Band Score.</p>
+      <p class="note" style="margin-top:10px">Many centres now also offer the <strong>One Skill Retake (OSR)</strong> — resit just the one section that let you down instead of the whole test, within 60 days, and get a new Test Report Form you can choose to submit alongside (or instead of) the original. Worth knowing before you rely on it: it currently requires your original test to have been computer-delivered (a paper-based original isn't eligible, though centres are gradually extending OSR to the Writing-on-Paper format), the retake has to be booked at an OSR-enabled centre in the same country as the original, and as of early 2026 it isn't offered at all for tests taken in the US — so confirm availability with your test centre rather than assuming it applies to you.</p>
+    </section>
+
+    <section class="panel guide-section guide">
+      <h2>Tips for a Band 8–9 score</h2>
+      <p>Vocabulary alone won't get you there — Band 8–9 is mostly about disciplined technique under time pressure. These are the highest-leverage, most consistently-cited habits per section.</p>
+
+      <h3 class="subheading">Listening</h3>
+      <ul>
+        <li>Use the 30–45 seconds before each section starts to read the questions and predict the type of answer needed (a number, a name, a date) — the gap between Band 7 and Band 9 here is mostly preparation, not raw listening speed. By the time the answer is spoken, you should already have it narrowed to two or three options.</li>
+        <li>Spelling has to be exact for Band 9 — a correctly-identified answer with a spelling mistake still loses the mark. Drill the words that get misspelled under pressure (accommodation, environment, necessary, occurred) and double-check plurals.</li>
+        <li>Write down what's actually said, not what you expect to hear — recordings routinely include a distractor answer first, then a correction ("...actually, make that Wednesday").</li>
+      </ul>
+
+      <h3 class="subheading">Reading</h3>
+      <ul>
+        <li>Budget roughly 20 minutes per passage with a 5-minute buffer at the end for review — and skip a question you're stuck on rather than losing several minutes to one line; you can usually reclaim more marks elsewhere than you'd gain by forcing it.</li>
+        <li>Skim first for the overall structure and main idea of each paragraph, then scan for the specific detail a question is actually asking about — reading every word start to finish is too slow to finish on time.</li>
+        <li>For True/False/Not Given: "Not Given" means the passage simply never addresses the statement either way. The single most common error is marking "False" when the information just isn't there at all.</li>
+      </ul>
+
+      <h3 class="subheading">Writing</h3>
+      <ul>
+        <li>Address every part of the prompt directly — Task Achievement/Response is graded on whether you actually answered the question asked, not on how sophisticated your vocabulary is elsewhere in the essay.</li>
+        <li>Write past the minimum, not exactly at it: aim for ~170 words on Task 1 and ~280–300 on Task 2, comfortably clear of the 150/250-word thresholds below which you're marked down — a tight word count leaves no margin for a miscount.</li>
+        <li>Don't memorise full essays or paragraphs. Examiners are trained to recognise them, and the usual tell is inconsistent quality — noticeably polished memorised sentences sitting next to weaker original ones — which caps the score well below what your actual level would otherwise earn.</li>
+        <li>Keep cohesion invisible: one or two well-placed connectors per paragraph, not one opening every sentence. See the Coherence and Cohesion note below — it's graded separately from vocabulary and mechanical linking is penalised, not rewarded.</li>
+        <li>Leave the last 2–3 minutes to proofread specifically for the errors you know you tend to make (articles, subject-verb agreement, tense) rather than re-reading passively.</li>
+      </ul>
+
+      <h3 class="subheading">Speaking</h3>
+      <ul>
+        <li>Extend every answer with a reason or example, then stop once you've actually answered — a Band 9 response reads as a natural conversation, not a monologue or a one-word reply.</li>
+        <li>Don't memorise full answers, especially for Part 2's cue-card topic. It's tempting, but examiners can tell, and a scripted-sounding answer reads as less fluent than an imperfect, natural one.</li>
+        <li>Speak at a natural pace rather than fast — fluency is about ease and smoothness, not speed, and rushing tends to cost coherence.</li>
+        <li>Correcting yourself mid-sentence is normal, natural speech, not a mistake to hide — trying to suppress every self-correction usually costs more fluency than the correction itself.</li>
+      </ul>
+
+      <h3 class="subheading">General preparation</h3>
+      <ul>
+        <li>Do full, timed mock tests under real conditions, not just isolated question-type drills — time pressure changes how you make decisions, and you want that pressure to feel familiar before test day, not new.</li>
+        <li>Prioritise your weakest section, not your strongest — the Overall Band Score averages all four, so a single weak section drags it down more than a strong one lifts it back up.</li>
+      </ul>
     </section>
 
     <section class="panel guide-section guide">
       <h2>Why vocabulary breadth matters for the band descriptors</h2>
       <ul>
         <li><strong>Reading &amp; Listening</strong>: many questions (sentence/summary/table completion, matching) hinge on recognising a <em>paraphrase</em> of a word in the passage — the exact word you're tested on rarely appears verbatim in the question. This is exactly why the flashcards emphasize synonyms, not just single-word definitions.</li>
-        <li><strong>Writing</strong>: the Band 8–9 "Lexical Resource" criterion explicitly rewards a "wide range of vocabulary… used with natural and sophisticated control," including less common/idiomatic items with only occasional inaccuracies.</li>
-        <li><strong>Speaking</strong>: the "Lexical Resource" criterion at Band 8–9 similarly requires flexible, precise vocabulary including idiomatic language, used naturally.</li>
+        <li><strong>Writing — Lexical Resource</strong>: one of Writing's four scoring criteria. At Band 8–9 it rewards a wide range of vocabulary used with natural, sophisticated control — uncommon lexical items and precise word choice, with only rare, minor errors. The <code>Idioms &amp; Collocations</code> and <code>Task 1 Data Language</code> topics target this directly.</li>
+        <li><strong>Writing — Coherence and Cohesion</strong>: a <em>separate</em> 25%-weighted criterion, easy to conflate with Lexical Resource but graded on its own — how well ideas are logically organised and linked, not how sophisticated the words are. At Band 8–9 the linking "attracts no attention": it should feel invisible, not like a checklist. This is where the <code>Cohesion &amp; Linking</code> topic applies — but overusing connectors (opening every sentence with "Furthermore" or "Moreover") reads as mechanical and is explicitly penalised at the higher bands, so aim for one or two well-placed ones per paragraph rather than working every card you've learned into the essay.</li>
+        <li><strong>Speaking</strong>: the Lexical Resource criterion at Band 8–9 similarly requires flexible, precise vocabulary — including idiomatic language — used naturally in conversation, not rehearsed.</li>
       </ul>
     </section>
 
@@ -118,13 +197,14 @@
         <li><strong>MCQ pass</strong> right after, to force active recall in a sentence context — closer to actual Reading/Listening tasks than isolated flashcards.</li>
         <li>Once a topic reaches ~80%+ mastered, keep revisiting it in mixed sessions weekly to fight forgetting — mastery fades faster than it feels like it should.</li>
         <li>Actively reuse 3–5 new words per week in your own Writing Task 2 practice essays and Speaking part-2 answers — passive recognition (flashcards) and active production (writing/speaking) are different skills, and both need practice.</li>
+        <li>When you practice a full essay, study the matching Writing-toolkit topic first: <code>Task 1 Data Language</code> before a Task 1 attempt, <code>Idioms &amp; Collocations</code> and <code>Cohesion &amp; Linking</code> before a Task 2 attempt — then check afterward whether you actually used any of them, rather than studying them in isolation and hoping they show up later.</li>
       </ol>
     </section>
 
     <section class="panel guide-section guide">
       <h2>How this word bank was built</h2>
-      <p>The word bank (<code>data/vocab.js</code>) targets <strong>IELTS Academic, Band 8–9</strong>: 517 low-frequency academic/topic-specific words and phrases, each tagged Band 8 or Band 9 for difficulty, across the 12 topics IELTS reading, listening, and writing passages draw on most heavily — environment, education, technology, health, economy, urbanization, government, crime &amp; justice, media, culture, science, and work. Each entry includes part of speech, a precise definition, a natural example sentence, and near-synonyms — the kind of nuance-testing vocabulary that separates Band 7 from Band 8–9 (precise word choice, collocation awareness, less common academic register).</p>
-      <p>Every session — Flashcards and MCQ alike — draws from the full deck across all 12 topics, shuffled, with a colour-coded topic tag on each card/question for context.</p>
+      <p>The word bank (<code>data/vocab.js</code>) targets <strong>IELTS Academic, Band 8–9</strong>: 595 low-frequency academic words and phrases, each tagged Band 8 or Band 9 for difficulty, across 15 topics. Twelve are subject-matter topics that IELTS reading, listening, and writing passages draw on most heavily — environment, education, technology, health, economy, urbanization, government, crime &amp; justice, media, culture, science, and work. The remaining three are a dedicated <strong>Writing toolkit</strong>, each aimed at a specific part of the Writing band descriptors: <code>Idioms &amp; Collocations</code> and <code>Task 1 Data Language</code> target Lexical Resource, while <code>Cohesion &amp; Linking</code> targets the separate Coherence and Cohesion criterion — see above for why that distinction matters. Each entry includes part of speech, a precise definition, a natural example sentence, and near-synonyms — the kind of nuance-testing vocabulary that separates Band 7 from Band 8–9 (precise word choice, collocation awareness, less common academic register).</p>
+      <p>Every session — Flashcards and MCQ alike — draws from the full deck across all 15 topics, shuffled, with a colour-coded topic tag on each card/question for context.</p>
       <p>MCQ distractors are generated <strong>on the fly</strong> from other words in the same topic/part of speech, so the wrong options are always plausible, topic-relevant near-misses rather than random noise — closer to how real IELTS distractors are designed.</p>
       <p style="margin-bottom:0">To add or edit words, edit the array in <code>data/vocab.js</code> directly — no build step required.</p>
     </section>
@@ -133,5 +213,7 @@
   <footer class="footer">
     <span><a href="index.html">← Back to the flashcard &amp; MCQ trainer</a></span>
   </footer>
+
+<script src="theme.js"></script>
 </body>
 </html>

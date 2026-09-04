@@ -2,33 +2,7 @@
   "use strict";
 
   const PROGRESS_KEY = "ielts_progress_v1";
-  const THEME_KEY = "ielts_theme";
   const MAX_BOX = 5;
-
-  // ---------- theme toggle ----------
-  function effectiveTheme() {
-    const stored = (() => { try { return localStorage.getItem(THEME_KEY); } catch (e) { return null; } })();
-    if (stored === "light" || stored === "dark") return stored;
-    return window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
-  }
-  function updateThemeButton() {
-    const btn = document.getElementById("theme-toggle");
-    if (!btn) return;
-    const current = effectiveTheme();
-    const isDark = current === "dark";
-    btn.setAttribute("aria-pressed", String(isDark));
-    btn.setAttribute("aria-label", isDark ? "Switch to light theme" : "Switch to dark theme");
-  }
-  const themeToggleBtn = document.getElementById("theme-toggle");
-  if (themeToggleBtn) {
-    themeToggleBtn.addEventListener("click", () => {
-      const next = effectiveTheme() === "dark" ? "light" : "dark";
-      try { localStorage.setItem(THEME_KEY, next); } catch (e) {}
-      document.documentElement.setAttribute("data-theme", next);
-      updateThemeButton();
-    });
-  }
-  updateThemeButton();
 
   const topics = [...new Set(VOCAB.map((w) => w.topic))];
 
@@ -48,6 +22,9 @@
     "Culture & Society": "purple",
     "Science & Research": "blue",
     "Work & Employment": "orange",
+    "Writing: Cohesion & Linking": "blue",
+    "Writing: Idioms & Collocations": "purple",
+    "Writing: Task 1 Data Language": "orange",
   };
 
   // ---------- progress storage ----------
@@ -113,6 +90,7 @@
   const views = {
     flashcards: $("#flashcard-view"),
     mcq: $("#mcq-view"),
+    browse: $("#browse-view"),
     stats: $("#stats-view"),
     end: $("#session-end"),
   };
@@ -127,14 +105,19 @@
     btn.addEventListener("click", () => {
       document.querySelectorAll(".mode-btn").forEach((b) => {
         b.classList.remove("active");
-        b.setAttribute("aria-selected", "false");
+        b.removeAttribute("aria-current");
       });
       btn.classList.add("active");
-      btn.setAttribute("aria-selected", "true");
+      btn.setAttribute("aria-current", "page");
       const target = btn.dataset.mode;
+      if (!target) return; // e.g. the "Study guide" link — let it navigate normally
+      try { history.replaceState(null, "", "#" + target); } catch (e) {}
       if (target === "stats") {
         renderStats();
         showView("stats");
+      } else if (target === "browse") {
+        showView("browse");
+        renderBrowse();
       } else if (target === "flashcards") {
         mode = "flashcards";
         startFlashcards();
@@ -156,7 +139,8 @@
     document.querySelectorAll(".mode-btn").forEach((b) => {
       const isTarget = b.dataset.mode === name;
       b.classList.toggle("active", isTarget);
-      b.setAttribute("aria-selected", String(isTarget));
+      if (isTarget) b.setAttribute("aria-current", "page");
+      else b.removeAttribute("aria-current");
     });
   }
 
@@ -194,12 +178,17 @@
     $("#fc-progress").textContent = `Card ${fcIndex + 1} of ${fcQueue.length}`;
   }
 
+  let suppressCardClick = false;
+
   function toggleFlip() {
     const card = $("#flashcard");
     const flipped = card.classList.toggle("flipped");
     card.setAttribute("aria-pressed", String(flipped));
   }
-  $("#flashcard").addEventListener("click", toggleFlip);
+  $("#flashcard").addEventListener("click", () => {
+    if (suppressCardClick) { suppressCardClick = false; return; }
+    toggleFlip();
+  });
   $("#flashcard").addEventListener("keydown", (e) => {
     if (e.code === "Space" || e.code === "Enter") { e.preventDefault(); toggleFlip(); }
   });
@@ -213,6 +202,78 @@
   }
   $("#fc-know").addEventListener("click", () => answerFlashcard(true));
   $("#fc-dont-know").addEventListener("click", () => answerFlashcard(false));
+
+  // ---------- flashcard swipe (swipe right = knew it, swipe left = still learning) ----------
+  (function initSwipe() {
+    const card = $("#flashcard");
+    const SWIPE_THRESHOLD = 80;
+    const DEAD_ZONE = 8;
+    let dragging = false;
+    let startX = 0;
+    let startY = 0;
+    let dragX = 0;
+    let movedPastDeadZone = false;
+    let committedDir = null;
+
+    function setCardTransform(x, rotateDeg, animated) {
+      card.style.transition = animated ? "transform 0.22s ease" : "none";
+      card.style.transform = x || rotateDeg ? `translateX(${x}px) rotate(${rotateDeg}deg)` : "";
+    }
+    function setCommitGlow(dir) {
+      if (committedDir === dir) return;
+      committedDir = dir;
+      if (dir === "right") card.style.boxShadow = "0 0 0 3px var(--brand-green)";
+      else if (dir === "left") card.style.boxShadow = "0 0 0 3px var(--error-text)";
+      else card.style.boxShadow = "";
+    }
+
+    card.addEventListener("pointerdown", (e) => {
+      if (e.pointerType === "mouse" && e.button !== 0) return;
+      dragging = true;
+      movedPastDeadZone = false;
+      startX = e.clientX;
+      startY = e.clientY;
+      dragX = 0;
+      card.setPointerCapture(e.pointerId);
+    });
+
+    card.addEventListener("pointermove", (e) => {
+      if (!dragging) return;
+      const dx = e.clientX - startX;
+      const dy = e.clientY - startY;
+      if (!movedPastDeadZone) {
+        if (Math.abs(dx) < DEAD_ZONE && Math.abs(dy) < DEAD_ZONE) return;
+        if (Math.abs(dy) > Math.abs(dx)) { dragging = false; return; } // vertical gesture — let it scroll
+        movedPastDeadZone = true;
+      }
+      dragX = dx;
+      setCardTransform(dx, dx / 18, false);
+      setCommitGlow(Math.abs(dx) > SWIPE_THRESHOLD ? (dx > 0 ? "right" : "left") : null);
+    });
+
+    function endDrag() {
+      if (!dragging) return;
+      dragging = false;
+      card.style.boxShadow = "";
+      committedDir = null;
+      if (movedPastDeadZone) {
+        suppressCardClick = true;
+        if (Math.abs(dragX) > SWIPE_THRESHOLD) {
+          const knew = dragX > 0;
+          setCardTransform(knew ? 520 : -520, knew ? 20 : -20, true);
+          setTimeout(() => {
+            answerFlashcard(knew);
+            setCardTransform(0, 0, false);
+          }, 220);
+        } else {
+          setCardTransform(0, 0, true);
+        }
+      }
+      dragX = 0;
+    }
+    card.addEventListener("pointerup", endDrag);
+    card.addEventListener("pointercancel", endDrag);
+  })();
 
   // ---------- MCQ ----------
   let mcqQueue = [];
@@ -261,7 +322,9 @@
     sentenceEl.innerHTML = "";
     const parts = target.example.split("___");
     sentenceEl.appendChild(document.createTextNode(parts[0]));
-    sentenceEl.appendChild(el("span", "blank", "_____"));
+    const blankEl = el("span", "blank", "_____");
+    blankEl.setAttribute("aria-label", "blank");
+    sentenceEl.appendChild(blankEl);
     sentenceEl.appendChild(document.createTextNode(parts[1] || ""));
 
     const optionsEl = $("#mcq-options");
@@ -375,6 +438,69 @@
     });
   }
 
+  // ---------- browse all ----------
+  const topicSelect = $("#browse-topic");
+  topics.forEach((t) => {
+    const opt = document.createElement("option");
+    opt.value = t;
+    opt.textContent = t;
+    topicSelect.appendChild(opt);
+  });
+
+  function renderBrowse() {
+    const q = $("#browse-search").value.trim().toLowerCase();
+    const topicFilter = topicSelect.value;
+    const diffFilter = $("#browse-difficulty").value;
+
+    const results = VOCAB.filter((w) => {
+      if (topicFilter && w.topic !== topicFilter) return false;
+      if (diffFilter && w.difficulty !== diffFilter) return false;
+      if (!q) return true;
+      const haystack = [w.word, w.definition, ...w.synonyms].join(" ").toLowerCase();
+      return haystack.includes(q);
+    });
+
+    $("#browse-count").textContent = `${results.length} of ${VOCAB.length} entries`;
+
+    const listEl = $("#browse-list");
+    listEl.innerHTML = "";
+    if (results.length === 0) {
+      listEl.appendChild(el("div", "browse-empty", "No matches — try a different search or filter."));
+      return;
+    }
+
+    results.forEach((w) => {
+      const row = el("div", "browse-item");
+
+      const tags = el("div", "card-tags");
+      const chip = el("span", "topic-chip");
+      paintChip(chip, w.topic);
+      tags.appendChild(chip);
+      const badge = el("span", "difficulty-badge");
+      paintDifficulty(badge, w.difficulty);
+      tags.appendChild(badge);
+      row.appendChild(tags);
+
+      const head = el("div", "browse-head");
+      head.appendChild(el("span", "browse-word", w.word));
+      head.appendChild(el("span", "pos-tag browse-pos", w.pos));
+      row.appendChild(head);
+
+      row.appendChild(el("div", "browse-def", w.definition));
+      row.appendChild(el("div", "fc-example browse-example", w.example.replace("___", w.word)));
+
+      const synEl = el("div", "fc-syn-list browse-syn");
+      w.synonyms.forEach((s) => synEl.appendChild(el("span", "fc-syn-pill", s)));
+      row.appendChild(synEl);
+
+      listEl.appendChild(row);
+    });
+  }
+
+  $("#browse-search").addEventListener("input", renderBrowse);
+  topicSelect.addEventListener("change", renderBrowse);
+  $("#browse-difficulty").addEventListener("change", renderBrowse);
+
   $("#reset-progress").addEventListener("click", () => {
     if (confirm("This will erase all saved flashcard/MCQ progress on this device. Continue?")) {
       localStorage.removeItem(PROGRESS_KEY);
@@ -383,5 +509,22 @@
   });
 
   // ---------- init ----------
-  startFlashcards();
+  // Supports deep links from guide.html, e.g. index.html#browse.
+  const initialHash = window.location.hash.replace("#", "");
+  if (initialHash === "stats") {
+    activateModeTab("stats");
+    renderStats();
+    showView("stats");
+  } else if (initialHash === "browse") {
+    activateModeTab("browse");
+    showView("browse");
+    renderBrowse();
+  } else if (initialHash === "mcq") {
+    activateModeTab("mcq");
+    mode = "mcq";
+    startMcq();
+  } else {
+    activateModeTab("flashcards");
+    startFlashcards();
+  }
 })();
