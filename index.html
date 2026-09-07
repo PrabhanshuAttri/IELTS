@@ -6,18 +6,21 @@
 <title>IELTS Academic Prep — Vocabulary &amp; MCQ Trainer</title>
 <meta name="description" content="Flashcards and fill-in-the-blank MCQ practice for IELTS Academic vocabulary (Band 8-9)." />
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 34 34'%3E%3Crect width='34' height='34' rx='10' fill='%2300ed64'/%3E%3Ctext x='17' y='24' font-family='system-ui,sans-serif' font-size='19' font-weight='700' text-anchor='middle' fill='%2300161f'%3EI%3C/text%3E%3C/svg%3E" />
-<meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)" />
-<meta name="theme-color" content="#001e2b" media="(prefers-color-scheme: dark)" />
+<meta name="theme-color" content="#ffffff" />
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Source+Code+Pro:wght@500&display=swap" rel="stylesheet" />
 <link rel="stylesheet" href="style.css" />
 <script>
-  // Applied before first paint to avoid a flash of the wrong theme.
+  // Applied before first paint to avoid a flash of the wrong theme (and a
+  // mismatched browser-chrome color) on load.
   (function () {
     try {
       var t = localStorage.getItem("ielts_theme");
       if (t === "light" || t === "dark") document.documentElement.setAttribute("data-theme", t);
+      var isDark = t === "dark" || (t !== "light" && window.matchMedia("(prefers-color-scheme: dark)").matches);
+      var meta = document.querySelector('meta[name="theme-color"]');
+      if (meta) meta.setAttribute("content", isDark ? "#001e2b" : "#ffffff");
     } catch (e) {}
   })();
 </script>
@@ -45,14 +48,22 @@
           <svg class="mode-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 6h13M8 12h13M8 18h13"/><path d="M3 6h.01M3 12h.01M3 18h.01"/></svg>
           <span class="mode-label">Browse all</span>
         </button>
+        <button class="mode-btn" data-mode="reading" aria-label="Reading practice">
+          <svg class="mode-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+          <span class="mode-label">Reading</span>
+        </button>
+        <button class="mode-btn" data-mode="writing" aria-label="Writing practice">
+          <svg class="mode-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>
+          <span class="mode-label">Writing</span>
+        </button>
         <button class="mode-btn" data-mode="stats" aria-label="Progress">
           <svg class="mode-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 3v18h18"/><path d="M7 15l4-5 3 3 5-7"/></svg>
           <span class="mode-label">Progress</span>
         </button>
-        <a class="mode-btn" href="guide.html" aria-label="Study guide">
+        <button class="mode-btn" data-mode="guide" aria-label="Study guide">
           <svg class="mode-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
           <span class="mode-label">Study guide</span>
-        </a>
+        </button>
       </nav>
       <button id="theme-toggle" class="icon-btn theme-toggle" type="button" aria-label="Switch to dark theme" aria-pressed="false">
         <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
@@ -152,6 +163,312 @@
       <h2>Session complete 🎉</h2>
       <p id="session-summary"></p>
       <button id="session-again" class="primary-btn">Study again</button>
+    </section>
+
+    <!-- ============ READING PRACTICE ============ -->
+    <section id="reading-view" class="guide hidden">
+      <section class="panel guide-section">
+        <span class="eyebrow">Reading</span>
+        <h2>Question types at a glance</h2>
+        <p class="note">Full timing and strategy tips live on the Study guide tab above. Passages here are original, exam-style texts (not real IELTS test content) written to drill each question type.</p>
+        <div class="table-wrap">
+          <table>
+            <caption>IELTS Academic Reading question types</caption>
+            <thead>
+              <tr><th scope="col">Type</th><th scope="col">What it tests</th></tr>
+            </thead>
+            <tbody>
+              <tr><th scope="row">True/False/Not Given</th><td>Whether a statement matches, contradicts, or is simply absent from the passage.</td></tr>
+              <tr><th scope="row">Yes/No/Not Given</th><td>Same idea, applied to the writer's claims/opinions rather than facts.</td></tr>
+              <tr><th scope="row">Matching headings</th><td>Identifying the main idea of each paragraph from a list of candidate headings.</td></tr>
+              <tr><th scope="row">Matching information</th><td>Locating which paragraph contains a specific piece of detail.</td></tr>
+              <tr><th scope="row">Sentence / summary completion</th><td>Filling gaps with words taken directly from the passage (word-limit rules apply).</td></tr>
+              <tr><th scope="row">Multiple choice</th><td>Selecting the option that best matches the passage's meaning, often among close distractors.</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="panel guide-section guide practice-set">
+        <span class="eyebrow">Practice set 1</span>
+        <h3>True / False / Not Given</h3>
+        <span class="practice-meta">Read the passage once, then answer without re-reading line by line.</span>
+        <div class="passage">
+          <p>Urban beekeeping has grown rapidly in cities across the world over the last two decades. What began as a niche hobby is now actively encouraged by some city governments, which offer subsidies for rooftop hives as part of broader biodiversity strategies. Supporters argue that urban environments can actually suit bees well: parks, gardens, and even roadside verges provide a longer flowering season than the intensively farmed monocultures found in much of the countryside, where a single crop may bloom for only a few weeks a year.</p>
+          <p>Critics, however, warn that the trend has been driven more by its appeal to residents than by sound ecological planning. In several cities, the density of managed honeybee colonies has increased so quickly that researchers have recorded a decline in wild, non-managed bee species, which must now compete with vastly larger honeybee populations for the same limited flowers. The concern is not for honeybees themselves, whose numbers are generally stable or growing, but for the hundreds of wild pollinator species that receive far less public attention despite being, in many ecosystems, more effective pollinators overall.</p>
+        </div>
+        <p><strong>Do the following statements agree with the information given in the passage?</strong> Write <em>True</em>, <em>False</em>, or <em>Not Given</em>.</p>
+        <ol class="q-list">
+          <li>Some city governments financially support the installation of rooftop beehives.</li>
+          <li>Flowering plants in cities generally bloom for a shorter period than farm crops.</li>
+          <li>Wild bee populations have declined in every city that has introduced managed hives.</li>
+          <li>Honeybee numbers are currently at risk of long-term decline.</li>
+        </ol>
+        <details class="answer-key">
+          <summary>Show answers</summary>
+          <div class="answer-body">
+            <ol>
+              <li><strong>True</strong> — "some city governments... offer subsidies for rooftop hives."</li>
+              <li><strong>False</strong> — the passage says urban flowering seasons are <em>longer</em> than farmland monocultures, the opposite of the statement.</li>
+              <li><strong>Not Given</strong> — the passage says this has happened "in several cities," not every city with managed hives.</li>
+              <li><strong>False</strong> — honeybee numbers are described as "generally stable or growing"; it's wild pollinators that are of concern.</li>
+            </ol>
+          </div>
+        </details>
+      </section>
+
+      <section class="panel guide-section guide practice-set">
+        <span class="eyebrow">Practice set 2</span>
+        <h3>Matching headings</h3>
+        <span class="practice-meta">Match each paragraph to the heading that best summarises its main idea. There are more headings than paragraphs.</span>
+        <div class="passage">
+          <p><span class="para-label">A.</span> Tea is believed to have originated in southwestern China, where it was initially consumed as a medicinal drink rather than a everyday beverage. Early written references describe it being boiled with other ingredients — ginger, orange peel, even salt — producing something closer to a herbal soup than the tea recognisable today. It was only during the Tang dynasty that tea drinking, prepared more simply, became widespread among the general population rather than remaining an elite or medicinal practice.</p>
+          <p><span class="para-label">B.</span> The drink's spread beyond China was gradual and closely tied to trade routes. Buddhist monks are credited with carrying tea to Japan, where it became central to a distinct ceremonial tradition emphasising precision and mindfulness. Centuries later, Dutch and Portuguese traders introduced tea to Europe, where it remained an expensive luxury reserved for the wealthy until import volumes increased enough to bring prices down.</p>
+          <p><span class="para-label">C.</span> In Britain, tea's transformation from luxury item to national staple was accelerated by colonial tea plantations established in India and Sri Lanka during the nineteenth century, which allowed for a much larger and cheaper supply than China alone had provided. This shift had consequences far beyond the drink itself, reshaping agricultural labour, trade balances, and even domestic social rituals such as "afternoon tea."</p>
+        </div>
+        <p><strong>Choose the correct heading for each paragraph from the list below.</strong></p>
+        <ol class="q-list headings-bank">
+          <li>The economic and social impact of colonial tea production</li>
+          <li>Competing theories about tea's true origin</li>
+          <li>Tea's early role as medicine and its shift to a popular drink</li>
+          <li>Modern tea-processing techniques</li>
+          <li>How tea travelled from China to Japan and then Europe</li>
+        </ol>
+        <p>Paragraph A: ____ &nbsp;&nbsp; Paragraph B: ____ &nbsp;&nbsp; Paragraph C: ____</p>
+        <details class="answer-key">
+          <summary>Show answers</summary>
+          <div class="answer-body">
+            <p>Paragraph A → <strong>iii</strong> &nbsp;|&nbsp; Paragraph B → <strong>v</strong> &nbsp;|&nbsp; Paragraph C → <strong>i</strong></p>
+            <p>Headings ii and iv are distractors: the passage never disputes tea's origin (it states it plainly), and processing technique is never discussed.</p>
+          </div>
+        </details>
+      </section>
+
+      <section class="panel guide-section guide practice-set">
+        <span class="eyebrow">Practice set 3</span>
+        <h3>Summary completion</h3>
+        <span class="practice-meta">Use no more than two words from the passage for each answer.</span>
+        <div class="passage">
+          <p>Coral reefs cover less than one percent of the ocean floor but support around a quarter of all known marine species, making them among the most biodiverse ecosystems on the planet. This productivity depends on a delicate relationship between coral polyps and microscopic algae called zooxanthellae, which live within the coral's tissue and supply it with the majority of its energy through photosynthesis. When water temperatures rise even slightly above normal for a sustained period, corals expel these algae in a stress response known as bleaching, leaving the coral colourless and, if the stress continues, at serious risk of starvation and death. A single severe bleaching event can take a decade or more to recover from, assuming no further thermal stress occurs in that time — a condition that has become increasingly rare as marine heatwaves grow more frequent.</p>
+        </div>
+        <p>Complete the summary below.</p>
+        <div class="note" style="background:transparent;border:1px dashed var(--hairline-strong);padding:14px 16px;">
+          Coral reefs occupy a very small fraction of the seabed yet host roughly a quarter of marine species. Their productivity relies on tiny algae, called <strong>(1) ____</strong>, living inside coral tissue and providing energy via photosynthesis. A sustained rise in water temperature causes corals to expel these algae, a process called <strong>(2) ____</strong>, which can lead to starvation if prolonged. Recovery from a single severe event can take <strong>(3) ____</strong> or more, provided no further <strong>(4) ____</strong> occurs.
+        </div>
+        <details class="answer-key">
+          <summary>Show answers</summary>
+          <div class="answer-body">
+            <ol>
+              <li>zooxanthellae</li>
+              <li>bleaching</li>
+              <li>a decade</li>
+              <li>thermal stress</li>
+            </ol>
+          </div>
+        </details>
+      </section>
+    </section>
+
+    <!-- ============ WRITING PRACTICE ============ -->
+    <section id="writing-view" class="guide hidden">
+      <section class="panel guide-section">
+        <span class="eyebrow">Writing</span>
+        <h2>Task 1 &amp; Task 2 at a glance</h2>
+        <p class="note">Scoring criteria and general Band 8–9 habits live on the Study guide tab above. This page gives you sample prompts to actually practice against, under timed conditions: 20 minutes for Task 1, 40 minutes for Task 2.</p>
+      </section>
+
+      <section class="panel guide-section guide practice-set">
+        <span class="eyebrow">Practice — Task 1</span>
+        <h3>Describe a bar chart</h3>
+        <span class="practice-meta">~150 words, 20 minutes. Summarise the data — don't explain why it happened.</span>
+        <div class="prompt-box">
+          <span class="prompt-label">Prompt</span>
+          The chart below shows the percentage of households with internet access in four countries between 2000 and 2020. Summarise the information by selecting and reporting the main features, and make comparisons where relevant.
+        </div>
+        <div class="data-fig" aria-hidden="true">
+          <div class="bar" style="height:88%"><span>92%</span><em>Country A</em></div>
+          <div class="bar" style="height:70%"><span>74%</span><em>Country B</em></div>
+          <div class="bar" style="height:45%"><span>48%</span><em>Country C</em></div>
+          <div class="bar" style="height:22%"><span>23%</span><em>Country D</em></div>
+        </div>
+        <p class="note" style="margin-top:14px">Figures show each country's internet access rate in 2020 (starting points in 2000 ranged from near 0% to roughly 15%, all rising steadily since).</p>
+        <details class="answer-key">
+          <summary>Show model structure</summary>
+          <div class="answer-body">
+            <ol>
+              <li><strong>Paraphrase the prompt</strong> as an introduction (1 sentence): what the chart shows, in your own words.</li>
+              <li><strong>Overview</strong> (1–2 sentences): the two or three biggest takeaways only — e.g. "Overall, internet access rose in all four countries over the period, though Country A consistently led while Country D lagged well behind the others throughout."</li>
+              <li><strong>Body paragraph 1</strong>: group and compare the higher-performing countries (A and B) with specific figures and trend language (rose steadily, more than doubled, overtook).</li>
+              <li><strong>Body paragraph 2</strong>: group and compare the lower-performing countries (C and D), again with figures.</li>
+            </ol>
+            <p>Never speculate about <em>why</em> access grew, and never give an opinion — Task 1 is purely descriptive.</p>
+          </div>
+        </details>
+      </section>
+
+      <section class="panel guide-section guide practice-set">
+        <span class="eyebrow">Practice — Task 1</span>
+        <h3>Useful data-description language</h3>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th scope="col">Function</th><th scope="col">Language</th></tr></thead>
+            <tbody>
+              <tr><th scope="row">Upward trend</th><td>rose, increased, climbed, grew, surged (sharp), crept up (slow)</td></tr>
+              <tr><th scope="row">Downward trend</th><td>fell, declined, dropped, plummeted (sharp), tailed off (slow)</td></tr>
+              <tr><th scope="row">No change</th><td>remained stable, levelled off, plateaued, stagnated</td></tr>
+              <tr><th scope="row">Comparison</th><td>compared with, in contrast to, whereas, more/fewer than, twice as many as</td></tr>
+              <tr><th scope="row">Approximation</th><td>approximately, roughly, just under/over, a little above</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="panel guide-section guide practice-set">
+        <span class="eyebrow">Practice — Task 2</span>
+        <h3>Sample essay prompts, by type</h3>
+        <span class="practice-meta">~250 words, 40 minutes. Spend the first 5 minutes planning: pick a clear position and 2–3 supporting ideas before you write.</span>
+        <div class="essay-type-grid">
+          <div class="essay-type-card">
+            <span class="et-name">Opinion (agree / disagree)</span>
+            <p class="et-prompt">Some people believe that university education should be free for all students. To what extent do you agree or disagree?</p>
+          </div>
+          <div class="essay-type-card">
+            <span class="et-name">Discussion (discuss both views)</span>
+            <p class="et-prompt">Some people think that children should begin learning a foreign language as soon as they start school, while others believe it is better to wait until secondary school. Discuss both views and give your own opinion.</p>
+          </div>
+          <div class="essay-type-card">
+            <span class="et-name">Problem &amp; solution</span>
+            <p class="et-prompt">Traffic congestion is becoming a serious problem in many major cities. What are the causes of this problem, and what measures could be taken to solve it?</p>
+          </div>
+          <div class="essay-type-card">
+            <span class="et-name">Advantage &amp; disadvantage</span>
+            <p class="et-prompt">More and more people are choosing to work from home rather than in a traditional office. Do the advantages of this trend outweigh the disadvantages?</p>
+          </div>
+        </div>
+        <details class="answer-key">
+          <summary>Show a sample brainstorm (Problem &amp; solution prompt)</summary>
+          <div class="answer-body">
+            <p><strong>Causes:</strong> rapid growth in car ownership outpacing road infrastructure; poor or unreliable public transport pushing people toward private vehicles; inefficient urban planning concentrating jobs in one district.</p>
+            <p><strong>Solutions:</strong> investment in public transport (metro/bus rapid transit); congestion pricing in city centres; encouraging remote work and staggered office hours to spread peak demand.</p>
+            <p><strong>Suggested structure:</strong> Intro (paraphrase + thesis) → Body 1: causes (2 points, one example each) → Body 2: solutions (2 points, tied back to the causes raised) → Conclusion (summarise, no new ideas).</p>
+          </div>
+        </details>
+      </section>
+
+      <section class="panel guide-section guide practice-set">
+        <span class="eyebrow">Self-assessment</span>
+        <h3>Checklist before you submit a practice essay</h3>
+        <ul class="checklist">
+          <li><strong>Task Response</strong> — Did you answer every part of the question, not just part of it? Is your position clear throughout, not just in the conclusion?</li>
+          <li><strong>Coherence &amp; Cohesion</strong> — Does each paragraph have one clear main idea? Are linking words natural rather than mechanical (one or two per paragraph, not one per sentence)?</li>
+          <li><strong>Lexical Resource</strong> — Did you avoid repeating the same key word from the prompt? Any topic-specific vocabulary used naturally rather than forced in?</li>
+          <li><strong>Grammar Range &amp; Accuracy</strong> — A mix of simple and complex sentences? Check articles, subject-verb agreement, and tense consistency in your last 2 minutes.</li>
+          <li><strong>Word count</strong> — At least 150 words (Task 1) / 250 words (Task 2), with margin to spare.</li>
+        </ul>
+      </section>
+    </section>
+
+    <!-- ============ STUDY GUIDE ============ -->
+    <section id="guide-view" class="guide hidden">
+      <section class="panel guide-section">
+        <h2>IELTS Academic exam — quick reference</h2>
+        <p class="note">Format details are occasionally revised — cross-check against the official <a href="https://www.ielts.org" target="_blank" rel="noopener">ielts.org</a> test format page closer to your test date.</p>
+        <div class="table-wrap">
+          <table>
+            <caption>IELTS Academic exam sections, timing, and content</caption>
+            <thead>
+              <tr><th scope="col">Section</th><th scope="col">Time</th><th scope="col">Content</th></tr>
+            </thead>
+            <tbody>
+              <tr>
+                <th scope="row">Listening</th>
+                <td>30 min<br>(+ transfer time)</td>
+                <td>40 questions, 4 recordings of increasing difficulty. Shared with General Training. Paper-based tests give 10 minutes to transfer answers to the answer sheet afterward; computer-delivered tests give 2 minutes to review answers typed directly during the recording.</td>
+              </tr>
+              <tr>
+                <th scope="row">Reading</th>
+                <td>60 min</td>
+                <td>40 questions, 3 long academic passages (journal/textbook/magazine style). Question types include multiple choice, matching headings/information, sentence completion, and <strong>fill-in-the-blank</strong> (summary/note/table completion).</td>
+              </tr>
+              <tr>
+                <th scope="row">Writing</th>
+                <td>60 min</td>
+                <td>Task 1 (20 min, ~150 words): describe a chart/graph/table/diagram. Task 2 (40 min, ~250 words): argumentative/discursive essay. Task 2 counts twice as much as Task 1 toward the Writing band.</td>
+              </tr>
+              <tr>
+                <th scope="row">Speaking</th>
+                <td>11–14 min</td>
+                <td>3 parts: introduction/interview, a 2-minute long-turn on a cue card, and a two-way discussion on related themes. Shared with General Training.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="total-line">Total time: <strong>≈2 hours 45 minutes</strong>. Bands are scored 1–9 in 0.5 increments per section, then averaged (rounded) for the Overall Band Score.</p>
+        <p class="note" style="margin-top:10px">Many centres now also offer the <strong>One Skill Retake (OSR)</strong> — resit just the one section that let you down instead of the whole test, within 60 days, and get a new Test Report Form you can choose to submit alongside (or instead of) the original. Worth knowing before you rely on it: it currently requires your original test to have been computer-delivered (a paper-based original isn't eligible, though centres are gradually extending OSR to the Writing-on-Paper format), the retake has to be booked at an OSR-enabled centre in the same country as the original, and as of early 2026 it isn't offered at all for tests taken in the US — so confirm availability with your test centre rather than assuming it applies to you.</p>
+      </section>
+
+      <section class="panel guide-section guide">
+        <h2>Tips for a Band 8–9 score</h2>
+        <p>Vocabulary alone won't get you there — Band 8–9 is mostly about disciplined technique under time pressure. These are the highest-leverage, most consistently-cited habits per section.</p>
+
+        <h3 class="subheading">Listening</h3>
+        <ul>
+          <li>Use the 30–45 seconds before each section starts to read the questions and predict the type of answer needed (a number, a name, a date) — the gap between Band 7 and Band 9 here is mostly preparation, not raw listening speed. By the time the answer is spoken, you should already have it narrowed to two or three options.</li>
+          <li>Spelling has to be exact for Band 9 — a correctly-identified answer with a spelling mistake still loses the mark. Drill the words that get misspelled under pressure (accommodation, environment, necessary, occurred) and double-check plurals.</li>
+          <li>Write down what's actually said, not what you expect to hear — recordings routinely include a distractor answer first, then a correction ("...actually, make that Wednesday").</li>
+        </ul>
+
+        <h3 class="subheading">Reading</h3>
+        <ul>
+          <li>Budget roughly 20 minutes per passage with a 5-minute buffer at the end for review — and skip a question you're stuck on rather than losing several minutes to one line; you can usually reclaim more marks elsewhere than you'd gain by forcing it.</li>
+          <li>Skim first for the overall structure and main idea of each paragraph, then scan for the specific detail a question is actually asking about — reading every word start to finish is too slow to finish on time.</li>
+          <li>For True/False/Not Given: "Not Given" means the passage simply never addresses the statement either way. The single most common error is marking "False" when the information just isn't there at all.</li>
+        </ul>
+
+        <h3 class="subheading">Writing</h3>
+        <ul>
+          <li>Address every part of the prompt directly — Task Achievement/Response is graded on whether you actually answered the question asked, not on how sophisticated your vocabulary is elsewhere in the essay.</li>
+          <li>Write past the minimum, not exactly at it: aim for ~170 words on Task 1 and ~280–300 on Task 2, comfortably clear of the 150/250-word thresholds below which you're marked down — a tight word count leaves no margin for a miscount.</li>
+          <li>Don't memorise full essays or paragraphs. Examiners are trained to recognise them, and the usual tell is inconsistent quality — noticeably polished memorised sentences sitting next to weaker original ones — which caps the score well below what your actual level would otherwise earn.</li>
+          <li>Keep cohesion invisible: one or two well-placed connectors per paragraph, not one opening every sentence. See the Coherence and Cohesion note below — it's graded separately from vocabulary and mechanical linking is penalised, not rewarded.</li>
+          <li>Leave the last 2–3 minutes to proofread specifically for the errors you know you tend to make (articles, subject-verb agreement, tense) rather than re-reading passively.</li>
+        </ul>
+
+        <h3 class="subheading">Speaking</h3>
+        <ul>
+          <li>Extend every answer with a reason or example, then stop once you've actually answered — a Band 9 response reads as a natural conversation, not a monologue or a one-word reply.</li>
+          <li>Don't memorise full answers, especially for Part 2's cue-card topic. It's tempting, but examiners can tell, and a scripted-sounding answer reads as less fluent than an imperfect, natural one.</li>
+          <li>Speak at a natural pace rather than fast — fluency is about ease and smoothness, not speed, and rushing tends to cost coherence.</li>
+          <li>Correcting yourself mid-sentence is normal, natural speech, not a mistake to hide — trying to suppress every self-correction usually costs more fluency than the correction itself.</li>
+        </ul>
+
+        <h3 class="subheading">General preparation</h3>
+        <ul>
+          <li>Do full, timed mock tests under real conditions, not just isolated question-type drills — time pressure changes how you make decisions, and you want that pressure to feel familiar before test day, not new.</li>
+          <li>Prioritise your weakest section, not your strongest — the Overall Band Score averages all four, so a single weak section drags it down more than a strong one lifts it back up.</li>
+        </ul>
+      </section>
+
+      <section class="panel guide-section guide">
+        <h2>Why vocabulary breadth matters for the band descriptors</h2>
+        <ul>
+          <li><strong>Reading &amp; Listening</strong>: many questions (sentence/summary/table completion, matching) hinge on recognising a <em>paraphrase</em> of a word in the passage — the exact word you're tested on rarely appears verbatim in the question. This is exactly why the flashcards emphasize synonyms, not just single-word definitions.</li>
+          <li><strong>Writing — Lexical Resource</strong>: one of Writing's four scoring criteria. At Band 8–9 it rewards a wide range of vocabulary used with natural, sophisticated control — uncommon lexical items and precise word choice, with only rare, minor errors. The <code>Idioms &amp; Collocations</code> and <code>Task 1 Data Language</code> topics target this directly.</li>
+          <li><strong>Writing — Coherence and Cohesion</strong>: a <em>separate</em> 25%-weighted criterion, easy to conflate with Lexical Resource but graded on its own — how well ideas are logically organised and linked, not how sophisticated the words are. At Band 8–9 the linking "attracts no attention": it should feel invisible, not like a checklist. This is where the <code>Cohesion &amp; Linking</code> topic applies — but overusing connectors (opening every sentence with "Furthermore" or "Moreover") reads as mechanical and is explicitly penalised at the higher bands, so aim for one or two well-placed ones per paragraph rather than working every card you've learned into the essay.</li>
+          <li><strong>Speaking</strong>: the Lexical Resource criterion at Band 8–9 similarly requires flexible, precise vocabulary — including idiomatic language — used naturally in conversation, not rehearsed.</li>
+        </ul>
+      </section>
+
+      <section class="panel guide-section guide">
+        <h2>Suggested study rhythm</h2>
+        <ol>
+          <li><strong>Daily flashcard pass</strong> (10–15 min) — pay closest attention to whichever topics show the lowest "mastered" percentage on the Progress tab.</li>
+          <li><strong>MCQ pass</strong> right after, to force active recall in a sentence context — closer to actual Reading/Listening tasks than isolated flashcards.</li>
+          <li>Once a topic reaches ~80%+ mastered, keep revisiting it in mixed sessions weekly to fight forgetting — mastery fades faster than it feels like it should.</li>
+          <li>Actively reuse 3–5 new words per week in your own Writing Task 2 practice essays and Speaking part-2 answers — passive recognition (flashcards) and active production (writing/speaking) are different skills, and both need practice.</li>
+          <li>When you practice a full essay, study the matching Writing-toolkit topic first: <code>Task 1 Data Language</code> before a Task 1 attempt, <code>Idioms &amp; Collocations</code> and <code>Cohesion &amp; Linking</code> before a Task 2 attempt — then check afterward whether you actually used any of them, rather than studying them in isolation and hoping they show up later.</li>
+        </ol>
+      </section>
     </section>
 
   </main>

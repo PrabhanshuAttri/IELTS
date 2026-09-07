@@ -13,6 +13,12 @@
    ========================================================================== */
 
 :root {
+  /* Lets native, browser-drawn UI (scrollbars, <select> menus, the
+     <details> disclosure triangle, form control chrome) follow the same
+     light/dark decision as the custom tokens below, instead of always
+     rendering with light-mode chrome regardless of the active theme. */
+  color-scheme: light dark;
+
   --canvas: #ffffff;
   --surface: #f7faf9;
   --surface-soft: #eef3f2;
@@ -92,7 +98,12 @@
   }
 }
 
+:root[data-theme="light"] {
+  color-scheme: light;
+}
+
 :root[data-theme="dark"] {
+  color-scheme: dark;
   --canvas: #001e2b;
   --surface: #0a2e33;
   --surface-soft: #123c3e;
@@ -222,12 +233,10 @@ body {
 /* pill-tab / pill-tab-active */
 .mode-switch {
   display: flex;
+  flex-wrap: wrap;
   gap: var(--sp-2);
   max-width: 100%;
-  overflow-x: auto;
-  scrollbar-width: none;
 }
-.mode-switch::-webkit-scrollbar { display: none; }
 
 .mode-btn {
   display: inline-flex;
@@ -675,13 +684,132 @@ button { font-family: inherit; color: inherit; }
 }
 .footer a { color: var(--steel); }
 
-/* Icon-only nav below tablet width — 5 tabs + theme toggle no longer fit
+/* ==========================================================================
+   Study guide / Reading practice / Writing practice views — static
+   reference content, formerly three separate pages (guide.html,
+   reading.html, writing.html) now rendered as in-app views so theme state,
+   nav, and localStorage all live on a single origin/page.
+   ========================================================================== */
+.guide-section { margin-bottom: 18px; }
+.guide-section:last-child { margin-bottom: 0; }
+.guide p { line-height: 1.65; }
+.guide ul, .guide ol { line-height: 1.65; padding-left: 22px; }
+.guide ul { list-style: none; padding-left: 0; }
+.guide ul li { position: relative; padding-left: 22px; margin-bottom: 10px; }
+.guide ul li::before {
+  content: "";
+  position: absolute; left: 2px; top: 9px;
+  width: 7px; height: 7px; border-radius: 50%;
+  background: var(--brand-green);
+}
+.guide ol li { margin-bottom: 8px; }
+.guide table { width: 100%; border-collapse: collapse; margin: 4px 0 6px; }
+.guide caption { display: none; }
+.guide th, .guide td { text-align: left; padding: 10px 12px; vertical-align: top; font-size: 0.92rem; }
+.guide thead th {
+  font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.06em;
+  color: var(--steel); border-bottom: 2px solid var(--hairline);
+}
+.guide tbody tr + tr td { border-top: 1px solid var(--hairline); }
+.guide tbody th { font-size: 0.95rem; font-weight: 600; white-space: nowrap; }
+.table-wrap { overflow-x: auto; border-radius: 12px; }
+.note {
+  font-size: 0.85rem; color: var(--steel);
+  background: var(--surface-soft); border-radius: 8px;
+  padding: 12px 14px; margin: 4px 0 18px;
+}
+.note a { color: var(--steel); }
+.total-line { font-size: 0.95rem; margin-top: 4px; }
+code {
+  background: var(--surface-soft); border-radius: 6px; padding: 1px 6px;
+  font-family: "Source Code Pro", "SF Mono", Menlo, Consolas, monospace;
+  font-size: 0.85em;
+}
+
+/* Practice passage + answer reveal (Reading practice view) */
+.passage {
+  background: var(--surface-soft);
+  border-radius: 10px;
+  padding: 16px 18px;
+  margin: 4px 0 16px;
+  font-size: 0.95rem;
+  line-height: 1.7;
+}
+.passage p { margin: 0 0 10px; }
+.passage p:last-child { margin-bottom: 0; }
+.passage .para-label { font-weight: 700; color: var(--brand-green-dark); margin-right: 6px; }
+.q-list { line-height: 1.7; padding-left: 22px; margin: 8px 0 16px; }
+.q-list li { margin-bottom: 8px; }
+.q-list.headings-bank { list-style: upper-roman; }
+details.answer-key {
+  border: 1px solid var(--hairline-strong);
+  border-radius: 8px;
+  padding: 10px 14px;
+  margin: 4px 0 22px;
+}
+details.answer-key summary {
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 0.88rem;
+  color: var(--brand-green-dark);
+}
+details.answer-key[open] summary { margin-bottom: 8px; }
+details.answer-key .answer-body { font-size: 0.9rem; line-height: 1.65; }
+details.answer-key .answer-body ol, details.answer-key .answer-body ul { padding-left: 20px; margin: 6px 0; }
+.practice-set { margin-bottom: 30px; }
+.practice-set:last-child { margin-bottom: 0; }
+.practice-set h3 { margin: 0 0 4px; font-size: 1.05rem; }
+.practice-set .practice-meta { font-size: 0.8rem; color: var(--steel); margin-bottom: 10px; display: block; }
+
+/* Task 1 prompt + mock chart, essay-type cards, checklist (Writing practice view) */
+.prompt-box {
+  background: var(--surface-soft);
+  border-left: 4px solid var(--brand-green);
+  border-radius: 6px;
+  padding: 14px 16px;
+  margin: 4px 0 14px;
+  font-size: 0.95rem;
+  line-height: 1.6;
+}
+.prompt-box .prompt-label {
+  display: block; font-size: 0.7rem; font-weight: 700; text-transform: uppercase;
+  letter-spacing: 0.06em; color: var(--brand-green-dark); margin-bottom: 6px;
+}
+.data-fig {
+  display: flex; align-items: flex-end; gap: 10px;
+  height: 130px; margin: 12px 0 6px; padding: 0 4px;
+}
+.data-fig .bar {
+  flex: 1; background: var(--brand-green); border-radius: 4px 4px 0 0;
+  position: relative; min-width: 20px;
+}
+.data-fig .bar span {
+  position: absolute; bottom: 100%; left: 50%; transform: translateX(-50%);
+  font-size: 0.68rem; color: var(--steel); white-space: nowrap; margin-bottom: 3px;
+}
+.data-fig .bar em {
+  position: absolute; top: 100%; left: 50%; transform: translateX(-50%);
+  font-size: 0.68rem; color: var(--steel); font-style: normal; margin-top: 4px; white-space: nowrap;
+}
+.essay-type-grid { display: grid; grid-template-columns: 1fr; gap: 14px; margin: 4px 0 6px; }
+.essay-type-card { background: var(--surface-soft); border-radius: 8px; padding: 12px 14px; }
+.essay-type-card .et-name { font-weight: 700; font-size: 0.88rem; color: var(--charcoal); display: block; margin-bottom: 4px; }
+.essay-type-card .et-prompt { font-size: 0.88rem; line-height: 1.55; margin: 0; }
+.checklist { list-style: none; padding-left: 0; }
+.checklist li { position: relative; padding-left: 30px; margin-bottom: 10px; line-height: 1.55; }
+.checklist li::before {
+  content: ""; position: absolute; left: 0; top: 2px;
+  width: 18px; height: 18px; border-radius: 5px;
+  border: 1.5px solid var(--hairline-strong); background: var(--canvas);
+}
+
+/* Icon-only nav below tablet width — 7 tabs + theme toggle no longer fit
    comfortably as labelled pills, so the label collapses and the pill
    becomes a compact circular icon button (still labelled for a11y via
-   aria-label on each). The brand name collapses to just the logo mark at
-   the same breakpoint so the whole topbar stays on one line instead of
-   wrapping to two — the page <h1> stays in the accessibility tree
-   (visually hidden, not display:none) so the heading structure holds. */
+   aria-label on each). The brand block drops entirely at the same
+   breakpoint so the whole topbar stays on one line instead of wrapping to
+   two — the page <h1> stays in the DOM (visually hidden, not removed) so
+   the heading structure holds for assistive tech. */
 @media (max-width: 640px) {
   .mode-switch { flex: 1; min-width: 0; }
   .mode-label { display: none; }
@@ -694,6 +822,7 @@ button { font-family: inherit; color: inherit; }
   .mode-icon { width: 16px; height: 16px; }
 
   .brand-sub { display: none; }
+  .brand .logo-mark { display: none; }
   .brand-mark {
     position: absolute;
     width: 1px;

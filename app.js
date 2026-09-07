@@ -92,6 +92,9 @@
     mcq: $("#mcq-view"),
     browse: $("#browse-view"),
     stats: $("#stats-view"),
+    reading: $("#reading-view"),
+    writing: $("#writing-view"),
+    guide: $("#guide-view"),
     end: $("#session-end"),
   };
   function showView(name) {
@@ -110,7 +113,7 @@
       btn.classList.add("active");
       btn.setAttribute("aria-current", "page");
       const target = btn.dataset.mode;
-      if (!target) return; // e.g. the "Study guide" link — let it navigate normally
+      if (!target) return;
       try { history.replaceState(null, "", "#" + target); } catch (e) {}
       if (target === "stats") {
         renderStats();
@@ -124,6 +127,9 @@
       } else if (target === "mcq") {
         mode = "mcq";
         startMcq();
+      } else {
+        // Static reference views (reading, writing, guide) — no rendering needed.
+        showView(target);
       }
     });
   });
@@ -509,7 +515,7 @@
   });
 
   // ---------- init ----------
-  // Supports deep links from guide.html, e.g. index.html#browse.
+  // Supports deep links, e.g. index.html#browse or index.html#guide.
   const initialHash = window.location.hash.replace("#", "");
   if (initialHash === "stats") {
     activateModeTab("stats");
@@ -523,6 +529,9 @@
     activateModeTab("mcq");
     mode = "mcq";
     startMcq();
+  } else if (initialHash === "reading" || initialHash === "writing" || initialHash === "guide") {
+    activateModeTab(initialHash);
+    showView(initialHash);
   } else {
     activateModeTab("flashcards");
     startFlashcards();

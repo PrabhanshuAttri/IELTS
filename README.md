@@ -1,6 +1,6 @@
 # IELTS Academic Prep — Vocabulary & MCQ Trainer
 
-A self-contained, offline-friendly study app for IELTS Academic vocabulary: flashcards with Leitner-style spaced repetition, fill-in-the-blank MCQ practice, a searchable browse-all view, a progress tracker, and a study guide with exam format notes and Band 8–9 preparation tips. Progress is saved locally in your browser (`localStorage`) — nothing is sent anywhere, so it works entirely offline and stays private to your device/browser. No build step, no dependencies — plain HTML/CSS/JS.
+A self-contained, offline-friendly study app for IELTS Academic prep: flashcards with Leitner-style spaced repetition, fill-in-the-blank MCQ practice, a searchable browse-all view, a progress tracker, Reading and Writing practice sets with sample questions, and a study guide with exam format notes and Band 8–9 preparation tips. Everything lives on a single page (`index.html`) with tabs to switch views, so theme and progress stay consistent everywhere. Progress is saved locally in your browser (`localStorage`) — nothing is sent anywhere, so it works entirely offline and stays private to your device/browser. No build step, no dependencies — plain HTML/CSS/JS.
 
 ## Running it
 
